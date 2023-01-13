@@ -29,7 +29,7 @@ def to_pygame(coords):
     return (coords[0] * 15 + width/2, (height*.75 - coords[1] * 15))
 
 
-class body:
+class Body:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -43,11 +43,11 @@ dt = .005
 # main
 bodies = []
 for i in range(0):
-    bodies.append(body(random.randint(-50, 50),
+    bodies.append(Body(random.randint(-50, 50),
                   random.randint(-50, 50), random.randint(-50, 50)))
 
 for i in range(10000):
-    bodies.append(body(20,20,20 + i / 10000))
+    bodies.append(Body(20,20,20 + i / 10000))
 
 running = True
 clock = pygame.time.Clock()
