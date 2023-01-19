@@ -26,7 +26,7 @@ screen = pygame.display.set_mode([width, height])
 
 def to_pygame(coords):
     """Convert coordinates into pygame coordinates (lower-left => top left)."""
-    return (coords[0] * 15 + width/2, (height*.75 - coords[1] * 15))
+    return (int(coords[0] * 15 + width/2), int(height*.75 - coords[1] * 15))
 
 
 class Body:
@@ -35,10 +35,7 @@ class Body:
         self.y = y
         self.z = z
 
-
-# constants
-dt = .005
-
+dt = .01
 
 # main
 bodies = []
@@ -49,20 +46,24 @@ for i in range(0):
 for i in range(10000):
     bodies.append(Body(20,20,20 + i / 10000))
 
+# trail effect - fading layer
+s = pygame.Surface((width,height), pygame.SRCALPHA)   # per-pixel alpha
+s.fill((0,0,0,30))                         # notice the alpha value in the color
+
 running = True
 clock = pygame.time.Clock()
 while running:
-    # Did the user click the window close button
+    # pygame event handling for closing window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
 
-    # trail effect
-    s = pygame.Surface((width,height), pygame.SRCALPHA)   # per-pixel alpha
-    s.fill((0,0,0,30))                         # notice the alpha value in the color
+    # fade out to make a trail
     screen.blit(s, (0,0))
-    
-
+    screen_pa = pygame.PixelArray(screen)
     for b in bodies:
         x = b.x
         y = b.y
@@ -78,18 +79,17 @@ while running:
         b.y += dy * dt
         b.z += dz * dt
 
-        #print(dx, dy, dz)
-
-        pygame.draw.circle(screen, (255, 255, 255), to_pygame((b.x, b.z)), 1)
+        #pygame.draw.circle(screen, (255, 255, 255), to_pygame((b.x, b.z)), 1)
+        x, y = to_pygame((b.x, b.z))
+        screen_pa[x,y] = (255,255,255)
         """
         dx/dt = 10 (y - x)
         dy/dt = x(28 - z) - y
         dz/dt = xy - (8/3)z
 
         """
-
+    screen_pa.close()
     # Flip the display
     pygame.display.flip()
-    #clock.tick(60)
 
 pygame.quit()
